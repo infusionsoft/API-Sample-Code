@@ -1,0 +1,137 @@
+<!--
+This Sample was Created by Justin Morris on 07/10/08
+In this sample we create a basic order form that collects user information.
+Then creates a contact record in Infusionsoft, adds a credit card to it, creates an order 
+and adds the selected items to the order.
+
+This file is the supporting HTML file that posts to a PHP file(ProcessSale.php) that does all of the actual work.
+-->
+
+
+<html>
+<head>
+<title>Sample Sales Form</title>
+<!-- Below are the javascript functions for validating the form fields and the "same name" check box. -->
+<script type="text/javascript">
+function validate_required(field,alerttxt)
+{
+with (field)
+{
+if (value==null||value=="")
+  {alert(alerttxt);return false;}
+else {return true}
+}
+}
+
+function validate_form(thisform)
+{
+with (thisform)
+{
+if (validate_required(fName,"First Name must be filled out!")==false)
+  {fName.focus();return false;}
+
+if (validate_required(lName,"Last Name must be filled out!")==false)
+  {lName.focus();return false;}
+
+if (validate_required(eMail,"Email must be filled out!")==false)
+  {eMail.focus();return false;}
+<!-- ----------------------------------------------------------------------------- -->
+
+if (validate_required(Street,"Street must be filled out!")==false)
+  {Street.focus();return false;}
+
+if (validate_required(City,"City must be filled out!")==false)
+  {City.focus();return false;}
+
+if (validate_required(State,"State must be filled out!")==false)
+  {State.focus();return false;}
+
+if (validate_required(zip,"Zip Code must be filled out!")==false)
+  {zip.focus();return false;}
+<!-- ----------------------------------------------------------------------------- -->
+
+if (validate_required(ccName,"Name on Card must be filled out!")==false)
+  {ccName.focus();return false;}
+
+if (ccCode.value.length<3)
+  { alert("Security Code must be at least 3 digits!"); ccCode.focus(); return false; }
+
+if (ccYear.value.length<4)
+  { alert("Expiration Year must be 4 digits!"); ccYear.focus(); return false; }
+
+if (ccNum.value.length<15)
+  { alert("Card Number must be at least 15 digits!"); ccNum.focus(); return false; }
+<!-- ----------------------------------------------------------------------------- -->
+
+if ((document.sForm.hotDog.checked==false)&&(document.sForm.Burger.checked==false)&&(document.sForm.Fries.checked==false)&&(document.sForm.Drink.checked==false))
+  { alert('You must select at least one product!'); return false; }
+
+}
+}
+
+function autoDetect()
+{
+if (document.sForm.sName.checked)
+  { copyName(); }
+}
+
+function copyName()
+{
+document.sForm.ccName.value=document.sForm.fName.value + " " + document.sForm.lName.value;
+}
+</script>
+
+</head>
+<body>
+<!-- Here we have our form, as you can see we specify ProcessSale.php as its action and its method is post. -->
+<!-- The onSubmit calls the form validation function -->
+
+<form name="sForm" action="ProcessSale.php" onsubmit="return validate_form(this)" method="POST">
+<table>
+<tr><td colspan=99 style="padding:4px;background-color:#000000;color:#FFFFFF">Contact Information</td></tr>
+<tr><td>First Name</td><td><input type="text" name="fName" onChange="autoDetect();" /></td></tr>
+<tr><td>Last Name</td><td><input type="text" name="lName" onChange="autoDetect();" /></td></tr>
+<tr><td>E-Mail</td><td><input type="text" name="eMail" /></td></tr>
+
+<tr><td colspan=99 style="padding:4px;background-color:#000000;color:#FFFFFF">Address Information</td></tr>
+<tr><td>Street Address</td><td><input type="text" name="Street" /></td></tr>
+<tr><td>City</td><td><input type="text" name="City" /></td></tr>
+<tr><td>State</td><td><input type="text" name="State" /></td></tr>
+<tr><td>Zip Code</td><td><input type="text" name="zip" /></td></tr>
+
+<tr><td colspan=99 style="padding:4px;background-color:#000000;color:#FFFFFF">Credit Card Information</td></tr>
+<tr><td>Name on Card</td><td><input type="text" name="ccName" /></td></tr>
+<tr><td></td><td><input type="checkbox" name="sName" onclick="copyName();" /> Same as above.</td></tr>
+<tr><td>Card Number</td><td><input type="text" name="ccNum" maxlength="16" /></td></tr>
+<tr><td>Card Type</td><td><select name="ccType">
+				<option>Visa</option>
+				<option>Master Card</option>
+				<option>American Express</option>
+				<option>Discover</option></select></td></tr>
+<tr><td>Card Security Code</td><td><input type="text" name="ccCode" maxlength="4" /></td></tr>
+<tr><td>Expiration Month</td><td><select name="month" />
+					<option>01</option>
+					<option>02</option>
+					<option>03</option>
+					<option>04</option>
+					<option>05</option>
+					<option>06</option>
+					<option>07</option>
+					<option>08</option>
+					<option>09</option>
+					<option>10</option>
+					<option>11</option>
+					<option>12</option></select></td></tr>
+<tr><td>Expiration Year (YYYY)</td><td><input type="text" name="ccYear" maxlength="4" /></td></tr>
+<tr><td colspan=99 style="padding:4px;background-color:#000000;color:#FFFFFF">Product Selection</td></tr>
+<tr><td><input type="checkbox" name="hotDog" /> Hot Dog - $2.00</td><td><input type="checkbox" name="Burger" /> Hamburger - $3.50</td></tr>
+<tr><td><input type="checkbox" name="Fries" /> French Fries - $1.75</td><td><input type="checkbox" name="Drink" /> Cold Drink - $1.00</td></tr>
+<tr><td><input type="submit" name="submit" value="Submit" /></td><td></td></tr>
+</table>
+</form>
+<!--
+After submit is clicked it checks the form to make sure everything is filled out and in the correct format the posts the data to the php script.
+Note that this should only be used if you have SSL on your server because it deals with credit card information.
+-->
+</body>
+</html>

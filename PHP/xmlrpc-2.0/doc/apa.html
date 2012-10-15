@@ -1,0 +1,23 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Appendix&nbsp;A.&nbsp;Integration with the PHP xmlrpc extension</title><link rel="stylesheet" href="html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="XML-RPC for PHP"><link rel="up" href="index.html" title="XML-RPC for PHP"><link rel="prev" href="ch12s04.html" title="4.&nbsp;My php error log is getting full of &#34;deprecated&#34; errors on different lines of xmlrpc.inc and xmlrpcs.inc"><link rel="next" href="apb.html" title="Appendix&nbsp;B.&nbsp;'Enough of xmlrpcvals!': new style library usage"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix&nbsp;A.&nbsp;Integration with the PHP xmlrpc extension</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch12s04.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="apb.html">Next</a></td></tr></table><hr></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="d0e2908"></a>Appendix&nbsp;A.&nbsp;Integration with the PHP xmlrpc extension</h2></div></div></div><p>To be documented more...</p><p>In short: for the fastest execution possible, you can enable the php native xmlrpc extension, and use it in conjunction with phpxmlrpc. The following code snippet gives an example of such integration</p><pre class="programlisting">
+/*** client side ***/
+$c = new xmlrpc_client('http://phpxmlrpc.sourceforge.net/server.php');
+// tell the client to return raw xml as response value
+$c-&gt;return_type = 'xml';
+// let's the native xmlrpc extension take care of encoding request parameters
+$r = $c-&gt;send(xmlrpc_encode_request('examples.getStateName', $_POST['stateno']));
+if (!$r-&gt;faultCode()) {
+  // HTTP request OK, but XML returned from server not parsed yet
+  $v = xmlrpc_decode($r-&gt;value());
+  // check if server sent an error response
+  if (is_array($v) &amp;&amp; array_key_exists('faultCode'))
+    echo 'Got error '.$v['faultCode'];
+  else
+    echo'Got response: '.htmlentities($v);
+} else {
+  // HTTP transport error
+  echo 'Got error '.$r-&gt;faultCode();
+}
+
+</pre></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch12s04.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="apb.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">4.&nbsp;My php error log is getting full of "deprecated" errors on different lines of xmlrpc.inc and xmlrpcs.inc&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix&nbsp;B.&nbsp;'Enough of xmlrpcvals!': new style library usage</td></tr></table></div></body></html>

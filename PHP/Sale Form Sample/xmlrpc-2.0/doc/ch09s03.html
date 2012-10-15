@@ -1,0 +1,47 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>3.&nbsp;Automatic conversion of php functions into xmlrpc methods (and vice versa)</title><link rel="stylesheet" href="html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="XML-RPC for PHP"><link rel="up" href="ch09.html" title="Chapter&nbsp;9.&nbsp;Helper functions"><link rel="prev" href="ch09s02.html" title="2.&nbsp;Easy use with nested PHP values"><link rel="next" href="ch09s04.html" title="4.&nbsp;Functions removed from the library"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.&nbsp;Automatic conversion of php functions into xmlrpc methods (and vice versa)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch09s02.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;9.&nbsp;Helper functions</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch09s04.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e2598"></a>3.&nbsp;Automatic conversion of php functions into xmlrpc methods (and vice versa)</h2></div></div></div><p>For the extremely lazy coder, two functions have been added that allow to convert a php function into an xmlrpc method, and a remotely exposed xmlrpc method into a local php function. Note that this comes with many caveats.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2603"></a>3.1.&nbsp;wrap_xmlrpc_method</h3></div></div></div><div class="funcsynopsis"><table border="0" summary="Function synopsis" cellspacing="0" cellpadding="0" style="padding-bottom: 1em"><tr><td><code class="funcdef">$new_php_function_name = wrap_xmlrpc_method(</code></td><td>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td><code>)</code>;</td><td>&nbsp;</td></tr></table><table border="0" summary="Function argument synopsis" cellspacing="0" cellpadding="0"><tr><td>&nbsp;</td><td>;</td></tr><tr><td>&nbsp;</td><td>;</td></tr><tr><td>&nbsp;</td><td>;</td></tr><tr><td>&nbsp;</td><td>;</td></tr><tr><td>&nbsp;</td><td>;</td></tr><tr><td>&nbsp;</td><td>;</td></tr></table></div><p>Given an xmlrpc server and a method name, creates a php wrapper function that will call the remote method and return results using native php types for both params and results. The generated php function will return an xmlrpcresp object for failed xmlrpc calls.</p><p>The server must support the <code class="methodname">system.methodSignature</code> xmlrpc method call for this function to work.</p><p>The <em class="parameter"><code>$client</code></em> param must be a valid xmlrpc_client object, previously created with the address of the target xmlrpc server, and to which the preferred communication options have been set.</p><p>The $signum param is optional. Its purpose is to indicate which method signature to use, if the given server method has multiple signatures (defaults to 0).</p><p>The <em class="parameter"><code>$timeout</code></em> and <em class="parameter"><code>$protocol</code></em> params are the same as in the <code class="methodname">xmlrpc_client::send()</code> method.</p><p>If set, the optional <em class="parameter"><code>$funcname</code></em> indicates which name should be used for the generated function. In case it is left null, the function name will be auto-generated.</p><p>In case of an error during generation of the wrapper function, FALSE is returned, otherwise the name of the new function.</p><p>Known limitations: server must support <code class="methodname">system.methodsignature</code> for the wanted xmlrpc method; for methods that expose multiple signatures, only one can be picked; for remote calls with nested xmlrpc params, the caller of the generated php function has to encode on its own the params passed to the php function if these are structs or arrays whose (sub)members include values of type base64.</p><p>Note: calling the generated php function 'might' be slow: a new xmlrpc client is created on every invocation and an xmlrpc-connection opened+closed. An extra 'debug' param is appended to the parameter list of the generated php function, useful for debugging purposes.</p><p>Example usage:</p><pre class="programlisting">
+$c = new xmlrpc_client('http://phpxmlrpc.sourceforge.net/server.php');
+
+$function = wrap_xmlrpc_method($client, 'examples.getStateName');
+
+if (!$function)
+  die('Cannot introspect remote method');
+else {
+  $stateno = 15;
+  $statename = $function($a);
+  if (is_a($statename, 'xmlrpcresp')) // call failed
+  {
+    echo 'Call failed: '.$statename-&gt;faultCode().'. Calling again with debug on';
+    $function($a, true);
+  }
+  else
+    echo "OK, state nr. $stateno is $statename";
+}
+
+</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="wrap_php_function"></a>3.2.&nbsp;wrap_php_function</h3></div></div></div><div class="funcsynopsis"><table border="0" summary="Function synopsis" cellspacing="0" cellpadding="0" style="padding-bottom: 1em"><tr><td><code class="funcdef">$dispatch_map_definition = wrap_php_function(</code></td><td><var class="pdparam">$funcname</var>, </td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td><var class="pdparam">$wrapper_function_name</var><code>)</code>;</td><td>&nbsp;</td></tr></table><table border="0" summary="Function argument synopsis" cellspacing="0" cellpadding="0"><tr><td>&nbsp;</td><td><var class="pdparam">$funcname</var>;</td></tr><tr><td>&nbsp;</td><td><var class="pdparam">$wrapper_function_name</var>;</td></tr></table></div><p>Given a user-defined PHP function, create a PHP 'wrapper' function that can be exposed as xmlrpc method from an xmlrpc_server object and called from remote clients.</p><p>The optional <em class="parameter"><code>$wrapper_function_name</code></em> specifies the name that will be used for the auto-generated function.</p><p>Since php is a typeless language, to infer types of input and output parameters, it relies on parsing the javadoc-style comment block associated with the given function. Usage of xmlrpc native types (such as datetime.dateTime.iso8601 and base64) in the docblock @param tag is also allowed, if you need the php function to receive/send data in that particular format (note that base64 encoding/decoding is transparently carried out by the lib, while datetime vals are passed around as strings).</p><p>Known limitations: requires PHP 5.0.3 +; only works for user-defined functions, not for PHP internal functions (reflection does not support retrieving number/type of params for those); the wrapped php function will not be able to programmatically return an xmlrpc error response; functions returning php objects will generate "special" xmlrpc responses: when the xmlrpc decoding of those responses is carried out by this same lib, using the appropriate param in php_xmlrpc_decode, the objects will be rebuilt.</p><p>In short: php objects can be serialized, too (except for their resource members), using this function. Other libs might choke on the very same xml that will be generated in this case (i.e. it has a nonstandard attribute on struct element tags)</p><p>Example usage:</p><pre class="programlisting">/**
+* State name from state number decoder. NB: do NOT remove this comment block.
+* @param integer $stateno the state number
+* @return string the name of the state (or error description)
+*/
+function findstate($stateno)
+{
+  global $stateNames;
+  if (isset($stateNames[$stateno-1]))
+  {
+    return $stateNames[$stateno-1];
+  }
+  else
+  {
+    return "I don't have a state for the index '" . $stateno . "'";
+  }
+}
+
+// wrap php function, build xmlrpc server
+$methods = array();
+$findstate_sig = wrap_php_function('findstate');
+if ($findstate_sig)
+  $methods['examples.getStateName'] = $findstate_sig;
+$srv = new xmlrpc_server($methods);
+
+</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch09s02.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch09.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch09s04.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">2.&nbsp;Easy use with nested PHP values&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;4.&nbsp;Functions removed from the library</td></tr></table></div></body></html>
