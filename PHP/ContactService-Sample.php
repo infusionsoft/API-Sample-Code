@@ -1,10 +1,16 @@
 <?php
-###########################################################################################################
-###Sample Created by Justin Morris on 7/8/08                                                            ###
-###In this sample we create a script that will allow forms to post to it and then                       ###
-###take the posted data and create a contact in Infusionsoft and add it to a group and/or campaign.     ###
-###The forms.html file included with this sample is the page that posts to this script.                 ###
-###########################################################################################################
+################################################################################
+###Sample Created by Justin Morris on 7/8/08                                 ###
+###Sample Updated by JL Marks on 15 July 2014								 ###
+###																			 ###
+###In this sample we create a script that will allow forms to post to it and ###
+###then take the posted data and create a contact in Infusionsoft. Depending ###
+###on the options selected on the form we will then apply tags to this contac###
+###or add it to a follow up sequence.		     							 ###
+###The forms.html file included with this sample is the page that posts to   ###
+###this script.  											                 ###
+################################################################################
+
 
 ###Include our XMLRPC Library###
 include("xmlrpc-2.0/lib/xmlrpc.inc");
@@ -21,23 +27,23 @@ $client->setSSLVerifyPeer(FALSE);
 ###Our API Key###
 $key = "13643d3c8910057ce07623ed01bb22b2";
 
-###########################################
-###Our Function to add people to a group###
-###########################################
-function addGrp($CID, $GID) {
+################################################################################
+###Our Function to a tag to a contact                                        ###
+################################################################################
+function addTag($CID, $TID) {
 ###Set up global variables###
 	global $client, $key;
 ###Set up the call to add to the group###
 	$call = new xmlrpcmsg("ContactService.addToGroup", array(
 		php_xmlrpc_encode($key), 		#The encrypted API key
 		php_xmlrpc_encode($CID),		#The contact ID
-		php_xmlrpc_encode($GID),		#The Group ID
+		php_xmlrpc_encode($TID),		#The tag ID
 	));
 ###Send the call###
 	$result = $client->send($call);
 
 	if(!$result->faultCode()) {
-		print "Contact added to group " . $GID;
+		print "Tag " . $TID . " added to contact.";
 		print "<BR>";
 	} else {
 		print $result->faultCode() . "<BR>";
@@ -45,24 +51,31 @@ function addGrp($CID, $GID) {
 	}
 }
 
-##############################################
-###Our Function to add people to a campaign###
-##############################################
-function addCamp($CID, $CMP) {
+################################################################################
+###Our Function to add people to a Follow up sequence                        ###
+################################################################################
+function addCamp($CID, $FUS) {
 ###Set up global variables###
 	global $client, $key;
 	
-###Set up the call to add to the campaign###
+################################################################################
+### Note: at the time that the API was written "Campaigns" were actually     ###
+### Follow up sequences. This is why the action to add a user to a Follow up ###
+### sequence is called "addToCampaign".										 ###
+###                                                                          ###
+################################################################################
+
+###Set up the call to add to the Follow up sequence###
 	$call = new xmlrpcmsg("ContactService.addToCampaign", array(
 		php_xmlrpc_encode($key), 		#The encrypted API key
 		php_xmlrpc_encode($CID),		#The contact ID
-		php_xmlrpc_encode($CMP),		#The Campaign ID
+		php_xmlrpc_encode($FUS),		#The Follow up sequence ID
 	));
 ###Send the call###
 	$result = $client->send($call);
 
 	if(!$result->faultCode()) {
-		print "Contact added to Campaign " . $CMP;
+		print "Contact added to Follow up sequence " . $CMP;
 		print "<BR>";
 	} else {
 		print $result->faultCode() . "<BR>";
@@ -105,9 +118,9 @@ $call = new xmlrpcmsg("ContactService.add", array(
 		print $result->faultString() . "<BR>";
 	}
 
-##########################################################
-###Check to see what newsgroups/campaigns were selected###
-##########################################################
+################################################################################
+###Check to see what tags/Follow up sequences were selected					 ###
+################################################################################
 	if(isset($_POST['news1'])) {
 		addGrp($conID,91);
 	}
