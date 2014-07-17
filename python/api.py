@@ -52,7 +52,7 @@ added = server.ContactService.addToGroup(key, id, tagId)
 print "Tag added to contact: ", added, "\n"
 
 ################################################################################
-########    FIND ALL CONTACTS WITH A TAG                                ########
+########    FIND ALL CONTACTS WITH SPECIFIED TAG                        ########
 ########        This search illustrates how to find all contacts that   ########
 ########        have a particular tag as well as when those tags were   ########
 ########        applied.                                                ########
@@ -68,5 +68,4 @@ results = server.DataService.findByField(key, "ContactGroupAssign", limit, \
     page, "GroupId", tagId, fields)
 
 for result in results: 
-    print "Found: Contact #%(ID)3d had tag \"%(tagName)s\" applied on %(date)s."\
-     %{"ID":result["ContactId"], "tagName":result["ContactGroup"], "date":result["DateCreated"]}
+    print "Found: Contact #%3d had tag \"%s\" applied on %s." %(result["ContactId"], result["ContactGroup"],result["DateCreated"])
