@@ -37,8 +37,8 @@ print;
 #Fields I want to select
 fields = ["ContactId", "ContactGroup"];
 
-limit = 50; #Limit the number of rows that will be returned to 10
-page = 1; #Start with the first page
+limit = 50; #Limit the number of rows that will be returned to 50
+page = 0; #Start with the first page
 
 #Make the API call
 results = server.DataService.findByField(key, "ContactGroupAssign", limit, page, "GroupId", groupId, fields); 
