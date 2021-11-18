@@ -1,0 +1,13 @@
+{
+  "name": "DisplayListOfContacts",
+  "version": "1.0.0",
+  "description": "Display a list of Contacts retrieved from the Keap API",
+  "main": "index.js",
+  "author": "api@keap.com",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "axios-retry": "^3.2.4",
+    "yargs": "^17.2.1"
+  }
+}
