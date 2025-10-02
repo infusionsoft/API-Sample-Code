@@ -6,8 +6,8 @@
   "author": "api@keap.com",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.24.0",
-    "axios-retry": "^3.2.4",
-    "yargs": "^17.2.1"
+    "axios": "^1.12.2",
+    "axios-retry": "^4.5.0",
+    "yargs": "^18.0.0"
   }
 }
