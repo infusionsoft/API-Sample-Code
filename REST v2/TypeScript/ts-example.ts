@@ -1,4 +1,4 @@
-const API_KEY = "KeapAK-bd1f50f94ea2d78b664cfcc1f9057eedfa5803d2ee5a12f16e";
+const API_KEY = "ACCESS_TOKEN";
 const BASE_URL = "https://api.infusionsoft.com/crm/rest/v2";
 
 interface EmailAddress {
